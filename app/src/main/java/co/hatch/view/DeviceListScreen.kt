@@ -1,8 +1,8 @@
 package co.hatch.view
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +18,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import co.hatch.deviceClientLib.model.Device
 import co.hatch.viewmodel.DeviceViewModel
@@ -26,9 +25,11 @@ import co.hatch.viewmodel.DeviceViewModel
 @Composable
 fun DeviceListScreen(
     viewModel: DeviceViewModel,
-    onDeviceClick: (String) -> Unit
+    onDeviceClick: (String) -> Unit // Callback for navigating to the detail screen
 ) {
+    // Observe the list of devices from the ViewModel
     val devices by viewModel.deviceList.collectAsState()
+    // Observe the loading state to show an indicator if data is being refreshed
     val isLoading by viewModel.isLoading.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -42,6 +43,7 @@ fun DeviceListScreen(
             }
 
             devices.isEmpty() -> {
+                // Show a message if there are no devices to display
                 Text(
                     text = "No devices available.",
                     style = MaterialTheme.typography.body1,
@@ -67,22 +69,17 @@ fun DeviceListItem(device: Device, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onClick() },
+            .clickable { onClick() }, // Navigate to detail when clicked
         elevation = 4.dp
     ) {
         Row(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = device.name, style = MaterialTheme.typography.h6)
-                Text(
-                    text = if (device.connected) "Connected" else "Disconnected",
-                    color = if (device.connected) Color.Green else Color.Red
-                )
-            }
+            Text(text = device.name, style = MaterialTheme.typography.h6)
             Text(text = "RSSI: ${device.rssi}", style = MaterialTheme.typography.body2)
         }
     }
