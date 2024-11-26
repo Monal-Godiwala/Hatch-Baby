@@ -23,6 +23,9 @@ class DeviceViewModel : ViewModel() {
     private val _selectedDevice = MutableStateFlow<Device?>(null)
     val selectedDevice: StateFlow<Device?> = _selectedDevice
 
+    private val _previousSelectedDeviceId = MutableStateFlow<String?>(null)
+    val previousSelectedDeviceId: StateFlow<String?> = _previousSelectedDeviceId
+
     init {
         startDeviceListRefresh()
     }
@@ -51,14 +54,21 @@ class DeviceViewModel : ViewModel() {
     }
 
     fun selectDevice(selectedDeviceId: String) {
-        _selectedDevice.value = null
         viewModelScope.launch(Dispatchers.IO) {
+            _selectedDevice.value = null
             connectivityClient.connectToDeviceBy(selectedDeviceId,
                 object : ConnectivityClient.OnDeviceStateChangeListener {
                     override fun onDeviceStateChanged(deviceId: String, device: Device) {
                         _selectedDevice.value = device
+                        _previousSelectedDeviceId.value = deviceId
                     }
                 })
+        }
+    }
+
+    fun disConnectDevice() {
+        viewModelScope.launch(Dispatchers.IO) {
+            previousSelectedDeviceId.value?.let { connectivityClient.disconnectFromDevice(it) }
         }
     }
 

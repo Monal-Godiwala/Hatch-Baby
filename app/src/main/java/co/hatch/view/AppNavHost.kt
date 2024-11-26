@@ -16,6 +16,7 @@ fun AppNavHost(viewModel: DeviceViewModel) {
     NavHost(navController = navController, startDestination = "device_list") {
         composable("device_list") {
             DeviceListScreen(viewModel = viewModel) { deviceId ->
+                viewModel.disConnectDevice()
                 navController.navigate("device_detail/$deviceId")
             }
         }

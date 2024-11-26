@@ -28,11 +28,15 @@ fun DeviceDetailScreen(
     deviceId: String,
     onBackClick: () -> Unit
 ) {
+
+    // Trigger data loading when the screen is displayed
     LaunchedEffect(deviceId) {
         viewModel.selectDevice(deviceId)
     }
 
     val selectedDevice by viewModel.selectedDevice.collectAsState()
+
+    val isLoading = selectedDevice == null
 
     Scaffold(
         topBar = {
@@ -52,10 +56,11 @@ fun DeviceDetailScreen(
                 .fillMaxSize()
         ) {
             when {
-                selectedDevice == null -> {
+                isLoading -> {
+                    // Show a loading indicator when the device is being loaded
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-                else -> {
+                selectedDevice != null -> {
                     // Display device details
                     Column(
                         modifier = Modifier
@@ -63,12 +68,18 @@ fun DeviceDetailScreen(
                             .fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(text = "Name: ${selectedDevice?.name}", style = MaterialTheme.typography.h5)
+                        Text(
+                            text = "Name: ${selectedDevice?.name}",
+                            style = MaterialTheme.typography.h5
+                        )
                         Text(
                             text = "Connection Status: ${if (selectedDevice?.connected == true) "Connected" else "Disconnected"}",
                             color = if (selectedDevice?.connected == true) Color.Green else Color.Red
                         )
-                        Text(text = "Device ID: ${selectedDevice?.id}", style = MaterialTheme.typography.body1)
+                        Text(
+                            text = "Device ID: ${selectedDevice?.id}",
+                            style = MaterialTheme.typography.body1
+                        )
                         Text(
                             text = "Latest Connected: ${
                                 selectedDevice?.latestConnectedTime?.let {
@@ -79,13 +90,18 @@ fun DeviceDetailScreen(
                             style = MaterialTheme.typography.body1
                         )
                         Text(
-                            text = "Elapsed Connected: ${selectedDevice?.elapsedSecsConnected?.div(
-                                3600
-                            )} hrs, " +
+                            text = "Elapsed Connected: ${
+                                selectedDevice?.elapsedSecsConnected?.div(
+                                    3600
+                                )
+                            } hrs, " +
                                     "${(selectedDevice?.elapsedSecsConnected?.rem(3600))?.div(60)} mins",
                             style = MaterialTheme.typography.body1
                         )
-                        Text(text = "RSSI: ${selectedDevice?.rssi}", style = MaterialTheme.typography.body1)
+                        Text(
+                            text = "RSSI: ${selectedDevice?.rssi}",
+                            style = MaterialTheme.typography.body1
+                        )
                     }
                 }
             }
