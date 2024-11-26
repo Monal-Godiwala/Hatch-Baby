@@ -17,6 +17,9 @@ class DeviceViewModel : ViewModel() {
     private val _deviceList = MutableStateFlow<List<Device>>(emptyList())
     val deviceList: StateFlow<List<Device>> = _deviceList
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     private val _selectedDevice = MutableStateFlow<Device?>(null)
     val selectedDevice: StateFlow<Device?> = _selectedDevice
 
@@ -27,11 +30,23 @@ class DeviceViewModel : ViewModel() {
     private fun startDeviceListRefresh() {
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                _deviceList.value =
-                    connectivityClient.discoverDevices()
-                        .sortedByDescending { device -> device.rssi }
+                refreshDeviceList()
                 delay(10_000) // 10 seconds
             }
+        }
+    }
+
+    private suspend fun refreshDeviceList() {
+        _isLoading.value = true
+        try {
+            delay(1_500)
+            _deviceList.value =
+                connectivityClient.discoverDevices()
+                    .sortedByDescending { device -> device.rssi }
+        } catch (e: Exception) {
+            _deviceList.value = emptyList()
+        } finally {
+            _isLoading.value = false
         }
     }
 
