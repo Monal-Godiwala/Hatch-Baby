@@ -1,42 +1,35 @@
-package co.hatch.view
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import co.hatch.deviceClientLib.model.Device
 import co.hatch.viewmodel.DeviceViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceDetailScreen(
     viewModel: DeviceViewModel,
     deviceId: String,
     onBackClick: () -> Unit
 ) {
-
     LaunchedEffect(deviceId) {
         viewModel.selectDevice(deviceId)
     }
 
-    val selectedDevice: Device? by viewModel.selectedDevice.observeAsState()
+    val selectedDevice by viewModel.selectedDevice.collectAsState()
 
     selectedDevice?.let { device ->
         Scaffold(
@@ -45,10 +38,7 @@ fun DeviceDetailScreen(
                     title = { Text(text = "Device Details") },
                     navigationIcon = {
                         IconButton(onClick = { onBackClick() }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Back"
-                            )
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                         }
                     }
                 )
@@ -61,31 +51,27 @@ fun DeviceDetailScreen(
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "Name: ${device.name}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
+                Text(text = "Name: ${device.name}", style = MaterialTheme.typography.h5)
                 Text(
                     text = "Connection Status: ${if (device.connected) "Connected" else "Disconnected"}",
                     color = if (device.connected) Color.Green else Color.Red
                 )
-                Text(
-                    text = "Device ID: ${device.id}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Text(text = "Device ID: ${device.id}", style = MaterialTheme.typography.body1)
                 Text(
                     text = "Latest Connected: ${
-                        java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                            .format(device.latestConnectedTime)
+                        device.latestConnectedTime?.let {
+                            java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                                .format(it)
+                        }
                     }",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.body1
                 )
                 Text(
                     text = "Elapsed Connected: ${device.elapsedSecsConnected / 3600} hrs, " +
                             "${(device.elapsedSecsConnected % 3600) / 60} mins",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.body1
                 )
-                Text(text = "RSSI: ${device.rssi}", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "RSSI: ${device.rssi}", style = MaterialTheme.typography.body1)
             }
         }
     }

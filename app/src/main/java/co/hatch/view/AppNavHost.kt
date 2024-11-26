@@ -1,5 +1,6 @@
 package co.hatch.view
 
+import DeviceDetailScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost

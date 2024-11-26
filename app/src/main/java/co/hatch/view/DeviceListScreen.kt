@@ -7,12 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,10 +25,15 @@ fun DeviceListScreen(
     viewModel: DeviceViewModel,
     onDeviceClick: (String) -> Unit
 ) {
-    val devices = viewModel.deviceList.observeAsState().value
+    val devices by viewModel.deviceList.collectAsState()
 
-    LazyColumn {
-        devices?.let {
+    Column {
+        Text(
+            text = "Refreshing device list every 10 seconds...",
+            style = MaterialTheme.typography.body2,
+            modifier = Modifier.padding(8.dp)
+        )
+        LazyColumn {
             items(items = devices) { device ->
                 DeviceListItem(device = device, onClick = { onDeviceClick(device.id) })
             }
@@ -43,9 +48,7 @@ fun DeviceListItem(device: Device, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(8.dp)
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
+        elevation = 4.dp
     ) {
         Row(
             modifier = Modifier
@@ -54,13 +57,13 @@ fun DeviceListItem(device: Device, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = device.name, style = MaterialTheme.typography.headlineMedium)
+                Text(text = device.name, style = MaterialTheme.typography.h6)
                 Text(
                     text = if (device.connected) "Connected" else "Disconnected",
                     color = if (device.connected) Color.Green else Color.Red
                 )
             }
-            Text(text = "RSSI: ${device.rssi}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "RSSI: ${device.rssi}", style = MaterialTheme.typography.body2)
         }
     }
 }
